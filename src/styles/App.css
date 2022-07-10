@@ -1,5 +1,5 @@
 .backgroundImage {
-	transition: background-image 1s ease-in-out;
+	transition: 1s ease-in-out;
 }
 
 .footerButton {
@@ -16,4 +16,9 @@
 
 .sidebar {
 	height: 730px
+}
+
+.sliderWrapper {
+	padding-right: 25px;
+	display: flex;
 }

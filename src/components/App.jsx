@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import './App.css';
-import Sidebar from './components/Sidebar'
+import '../styles/App.css';
+import Sidebar from './Sidebar'
 
 function App() {
-  const images = ['beach', 'bubbles', 'desert', 'iceberg', 'lake', 'purple', 'space', 'stars', 'vibrant', 'water'];
+  const images = ['beach', 'bubbles', 'desert', 'ice', 'lake', 'mountains', 'purple', 'space', 'stars', 'vibrant'];
   const [imageIndex, setImageIndex] = useState(Math.floor(10*Math.random()));
 
   return (

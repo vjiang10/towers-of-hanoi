@@ -4,72 +4,87 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import { IconContext } from 'react-icons';
 import { FaGithub, FaGripLinesVertical, FaGripLines, FaEllipsisV } from 'react-icons/fa';
 import { AiOutlinePicture } from 'react-icons/ai'
+import { Slider } from '@mui/material';
 import GameLogic from './GameLogic';
 
 const Sidebar = ({images, onBackgroundChange}) => {
 	// separate rendering options
-	const options = [3,4,5,6,7,8,9,10];
+	const [collapse, setCollapse] = useState(false);
 	const [numTowers, setNumTowers] = useState(3);
 	const [numDiscs, setNumDiscs] = useState(3);
-	const [click, setClick] = useState(false);
 
-	// useEffect with dependency array on numTowers and numDiscs (which resets setup and calls on initial frop animation)
-	// Don't forget to return removeEventListener if needed
-	
+	// common slider props
+	const sliderProps = {
+		getAriaValueText: (value) => value,
+		valueLabelDisplay: "auto",
+		size: "small",
+		step: 1,
+		marks: true,
+		min: 3,
+		max: 10
+	}
+
 	return (
 		<div className="sidebar">
-		<IconContext.Provider value={{ color: "LightSeaGreen" }}>
-			<ProSidebar collapsed={click}>
-				<SidebarHeader>
-					<Menu iconShape="circle">
-						<MenuItem icon={<FaEllipsisV />} onClick={() => setClick(click ? false : true)}>
-							OPTIONS
-						</MenuItem>
-					</Menu>
-				</SidebarHeader>
-				<SidebarContent>
-					<Menu iconShape="circle">
-						<SubMenu title="Number of Towers" icon={<FaGripLinesVertical />}>
-							<select value={numTowers} onChange={({target}) => setNumTowers(target.value)}>
-								{options.map((option) => 
-								<option key={option.toString()} value={option}>{option}</option>)}
-							</select>
-						</SubMenu>
-						<SubMenu title="Number of Discs" icon={<FaGripLines />}>
-							<select value={numDiscs} onChange={({target}) => setNumDiscs(target.value)}>
-								{options.map((option) => 
-								<option key={option.toString()} value={option}>{option}</option>)}
-							</select>
-						</SubMenu>
-						<SubMenu title="Themes" icon={<AiOutlinePicture />}>
-							{images.map((image, index) => 
-								<MenuItem key={image}>
-									<div onClick={() => onBackgroundChange(index)}>
-										{image[0].toUpperCase() + image.substring(1)}
+			<IconContext.Provider value={{ color: "LightSeaGreen" }}>
+				<ProSidebar collapsed={collapse}>
+					<SidebarHeader>
+						<Menu iconShape="circle">
+							<MenuItem icon={<FaEllipsisV />} onClick={() => setCollapse(collapse ? false : true)}>
+								OPTIONS
+							</MenuItem>
+						</Menu>
+					</SidebarHeader>
+					<SidebarContent>
+						<Menu iconShape="circle">
+							<SubMenu title="Number of Towers" icon={<FaGripLinesVertical />}>
+								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}> 
+									<Slider
+										{...sliderProps}
+										onChangeCommitted={(_, newVal) => setNumTowers(newVal)}
+									/>
+								</div>
+							</SubMenu>
+							<SubMenu title="Number of Discs" icon={<FaGripLines />}>
+								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}>
+									<Slider
+										{...sliderProps}
+										onChangeCommitted={(_, newVal) => setNumDiscs(newVal)}
+									/>
+								</div>
+							</SubMenu>
+							<SubMenu title="Themes" icon={<AiOutlinePicture />}>
+								{images.map((image, index) => 
+									<div 
+										key={image} 
+										onClick={() => onBackgroundChange(index)}
+										style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/images/${images[index]}.jpg)`, backgroundSize:"cover"}}>
+										<MenuItem>
+											{image[0].toUpperCase() + image.substring(1)}
+										</MenuItem>
 									</div>
-								</MenuItem>
-							)}
-						</SubMenu>
-					</Menu> 
-				</SidebarContent>
-				<SidebarFooter>
-					<Menu iconShape="circle">
-						<MenuItem icon={click ? <FaGithub /> : ""}>
-							<a 
-								className="footerButton"
-								href="https://github.com/vjiang10/towers-of-hanoi" 
-								target="_blank"
-								rel="noreferrer"
-							>
-								<FaGithub />
-								<div style={{ padding: 5 }}>View Source</div>
-							</a>  
-						</MenuItem>
-					</Menu>
-				</SidebarFooter>
-			</ProSidebar>
-			<GameLogic numTowers={numTowers} numDiscs={numDiscs} />
-		</IconContext.Provider>
+								)}
+							</SubMenu>
+						</Menu> 
+					</SidebarContent>
+					<SidebarFooter>
+						<Menu iconShape="circle">
+							<MenuItem icon={collapse ? <FaGithub /> : ""}>
+								<a 
+									className="footerButton"
+									href="https://github.com/vjiang10/towers-of-hanoi" 
+									target="_blank"
+									rel="noreferrer"
+								>
+									<FaGithub />
+									<div style={{ padding: 5 }}>View Source</div>
+								</a>  
+							</MenuItem>
+						</Menu>
+					</SidebarFooter>
+				</ProSidebar>
+				<GameLogic numTowers={numTowers} numDiscs={numDiscs} />
+			</IconContext.Provider>
 		</div>
 	);
 }
