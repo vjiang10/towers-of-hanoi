@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/towers-of-hanoi/static/css/main.f9d04e46.css",
-    "main.js": "/towers-of-hanoi/static/js/main.cb86ae84.js",
+    "main.css": "/towers-of-hanoi/static/css/main.088f735c.css",
+    "main.js": "/towers-of-hanoi/static/js/main.6cdb9214.js",
     "index.html": "/towers-of-hanoi/index.html",
-    "main.f9d04e46.css.map": "/towers-of-hanoi/static/css/main.f9d04e46.css.map",
-    "main.cb86ae84.js.map": "/towers-of-hanoi/static/js/main.cb86ae84.js.map"
+    "main.088f735c.css.map": "/towers-of-hanoi/static/css/main.088f735c.css.map",
+    "main.6cdb9214.js.map": "/towers-of-hanoi/static/js/main.6cdb9214.js.map"
   },
   "entrypoints": [
-    "static/css/main.f9d04e46.css",
-    "static/js/main.cb86ae84.js"
+    "static/css/main.088f735c.css",
+    "static/js/main.6cdb9214.js"
   ]
 }
