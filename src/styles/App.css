@@ -1,5 +1,13 @@
-.backgroundImage {
+.background {
+	height: 100vh;
 	transition: 1s ease-in-out;
+}
+
+.content {
+	height: 100vh;
+	left: 100px;
+  top: 0px;
+	position: absolute;
 }
 
 .footerButton {
@@ -12,10 +20,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-}
-
-.sidebar {
-	height: 730px
 }
 
 .sliderWrapper {

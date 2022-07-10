@@ -7,10 +7,9 @@ function App() {
   const [imageIndex, setImageIndex] = useState(Math.floor(10*Math.random()));
 
   return (
-    <div className="backgroundImage" style={{ 
+    <div className="background" style={{ 
       backgroundImage: `url(${process.env.PUBLIC_URL}/images/${images[imageIndex]}.jpg)`,
-      backgroundSize: "cover"}}
-    >
+      backgroundSize: "cover"}}>
       <Sidebar images={images} onBackgroundChange={(index) => setImageIndex(index)} />
     </div>
   );

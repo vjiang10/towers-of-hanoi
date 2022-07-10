@@ -25,8 +25,8 @@ const Sidebar = ({images, onBackgroundChange}) => {
 	}
 
 	return (
-		<div className="sidebar">
-			<IconContext.Provider value={{ color: "LightSeaGreen" }}>
+		<>
+			<IconContext.Provider className="sidebar" value={{ color: "LightSeaGreen" }}>
 				<ProSidebar collapsed={collapse}>
 					<SidebarHeader>
 						<Menu iconShape="circle">
@@ -83,9 +83,11 @@ const Sidebar = ({images, onBackgroundChange}) => {
 						</Menu>
 					</SidebarFooter>
 				</ProSidebar>
-				<GameLogic numTowers={numTowers} numDiscs={numDiscs} />
 			</IconContext.Provider>
-		</div>
+			<div className="content">
+				<GameLogic numTowers={numTowers} numDiscs={numDiscs} />
+			</div>
+		</>
 	);
 }
 
