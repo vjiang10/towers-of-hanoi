@@ -10,7 +10,9 @@ function App() {
     <div className="background" style={{ 
       backgroundImage: `url(${process.env.PUBLIC_URL}/images/${images[imageIndex]}.jpg)`,
       backgroundSize: "cover"}}>
-      <Sidebar images={images} onBackgroundChange={(index) => setImageIndex(index)} />
+      <div className="sidebar"> 
+        <Sidebar images={images} onBackgroundChange={(index) => setImageIndex(index)} />
+      </div>
     </div>
   );
 }

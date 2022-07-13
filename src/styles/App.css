@@ -22,7 +22,30 @@
 	justify-content: center;
 }
 
+.sidebar {
+	height: 100vh;
+}
+
 .sliderWrapper {
 	padding-right: 25px;
 	display: flex;
+}
+
+.themeItem {
+	background-size: cover;
+	background-position: center;
+}
+
+.towerIcon {
+	background-size: 0px, 0px;
+}
+
+.towerIcon:hover {
+	background: linear-gradient(transparent 50%, lightcyan 50%) !important;
+}
+
+.towerItem {
+	padding-right: 25px;
+	display: flex;
+	justify-content: center;
 }
