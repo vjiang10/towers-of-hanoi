@@ -22,20 +22,21 @@ import {
 	FaRedo, 
 	FaGithub 
 } from 'react-icons/fa';
-import { AiFillPicture, AiTwotoneEdit } from 'react-icons/ai'
-import { TbTallymark1 } from 'react-icons/tb'
-import useSound from 'use-sound';
+import { AiOutlineCaretRight, AiFillPicture, AiTwotoneEdit } from 'react-icons/ai';
+import { TbTallymark1 } from 'react-icons/tb';
+import { IoMdHelp, IoMdMore } from 'react-icons/io';
 import GameLogic from './GameLogic';
 
 const Sidebar = ({images, onBackgroundChange}) => {
 	// separate state for rendering options
 	const [collapse, setCollapse] = useState(false);
+	const [procedure, setProcedure] = useState(0);
 	const [numTowers, setNumTowers] = useState(3);
 	const [numDiscs, setNumDiscs] = useState(3);
 	const [source, setSource] = useState(0);
 	const [destination, setDestination] = useState(numTowers-1);
 	const [animate, setAnimate] = useState(false);
-	const [click] = useSound(process.env.PUBLIC_URL + "/sounds/click.mp3");
+	const [playRate, setPlayRate] = useState(1);
 
 	// common slider props
 	const sliderProps = {
@@ -46,24 +47,22 @@ const Sidebar = ({images, onBackgroundChange}) => {
 		marks: true,
 		min: 3,
 		max: 7
-	}
+	};
 
 	// produces tower item containing tower icons 
 	const towerItem = (dir, set) => (
 		<div className="towerItem">
-			{/* tower icons generation */}
-			{[...Array(numTowers)].map((_,i) => 
+			{/* tower icons generation, loops through array of length numTowers */}
+			{[...Array(numTowers)].map((_, index) => 
 				<span className="towerIcon" 
-					style={{ background: `linear-gradient(transparent 50%, ${i === dir ? "DeepSkyBlue" : "Cyan"} 50%` }}
-					onClick={() => {
-						if (i !== (dir === source ? destination : source)) {
-							set(i);
-							click();
-						}
+					key={index}
+					style={{ 
+						background: `linear-gradient(transparent 50%, ${index === dir ? "DeepSkyBlue" : "Cyan"} 50%` 
 					}}
+					onClick={() => index !== source && index !== destination && set(index)}
 				>
 					<TbTallymark1 
-						color={i === dir ? "RoyalBlue" : "LightSeaGreen"}
+						color={index === dir ? "RoyalBlue" : "LightSeaGreen"}
 						size={35}
 					/>
 				</span>
@@ -71,45 +70,65 @@ const Sidebar = ({images, onBackgroundChange}) => {
 		</div>
 	);
 
+	// array containing string elements representing choices for different types of game rules/procedures
+	const procedures = ["Standard", "Adjacent (Coming Soon!)", "Magnetic (Coming Soon!)", "Bicolor (Coming Soon!)"];
+
 	return (
 		<>
 			<ProSidebar collapsed={collapse}>
 				<IconContext.Provider className="sidebar" value={{ color: "LightSeaGreen" }}>
 					<SidebarHeader>
 						<Menu iconShape="circle">
-							<MenuItem icon={<FaCog />} onClick={() => setCollapse(!collapse)}>
+							<MenuItem icon={<FaCog/>} onClick={() => setCollapse(!collapse)}>
 								OPTIONS
 							</MenuItem>
 						</Menu>
 					</SidebarHeader>
 					<SidebarContent>
 						<Menu iconShape="circle">
-							<SubMenu title="Number of Towers" icon={<FaGripLinesVertical />} >
+							<SubMenu title="Rules and Variants" icon={<IoMdMore size="1.5em"/>}>
+								{procedures.map((option, index) => 
+									<MenuItem 
+										icon={option === procedures[procedure] && <AiOutlineCaretRight/>}
+										style={{ color: option === procedures[procedure] ? "#ADADAD" : "LightSeaGreen" }} 
+										onClick={() => setProcedure(index)}
+									>
+										{option}
+									</MenuItem>
+								)}
+							</SubMenu>
+							<SubMenu title="Number of Towers" icon={<FaGripLinesVertical/>}>
 								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}> 
 									<Slider
 										{...sliderProps}
+										defaultValue={numTowers}
 										onChangeCommitted={(_, newVal) => {
 											setNumTowers(newVal)
-											setDestination(newVal-1);
+											// limit destiation and source to newVal-1
+											// ensure destination and source cannot be set on top of each other
+											destination < newVal || setDestination(newVal-1 - (source === newVal-1 ? 1 : 0));
+											source < newVal || setSource(newVal-1 - (destination === newVal-1 ? 1 : 0));
 										}}
 									/>
 								</div>
 							</SubMenu>
-							<SubMenu title="Number of Discs" icon={<FaGripLines />}>
+							<SubMenu title="Number of Discs" icon={<FaGripLines/>}>
 								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}>
 									<Slider
 										{...sliderProps}
+										defaultValue={numDiscs}
 										onChangeCommitted={(_, newVal) => setNumDiscs(newVal)}
 									/>
 								</div>
 							</SubMenu>
-							<SubMenu title="Source Tower" icon={<FaChevronUp />}>
+							<SubMenu title="Source Tower" icon={<FaChevronUp/>}>
 								{towerItem(source, setSource)}
 							</SubMenu>
-							<SubMenu title="Destination Tower" icon={<FaChevronDown />}>
+							<SubMenu title="Destination Tower" icon={<FaChevronDown/>}>
 								{towerItem(destination, setDestination)}
 							</SubMenu>
-							<SubMenu title="Themes" icon={<AiFillPicture />}>
+							{/* theme options (sets background image) */}
+							<SubMenu title="Themes" icon={<AiFillPicture/>}>
 								{images.map((image, index) => 
 									<div className="themeItem"
 										key={image} 
@@ -122,32 +141,67 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									</div>
 								)}
 							</SubMenu>
-							<SubMenu title="Material" icon={<AiTwotoneEdit />}>
-							</SubMenu> 
-							<MenuItem 
-								icon={animate ? <FaPause /> : <FaPlay />} 
-								onClick={() => setAnimate(!animate)}
-							>
-								Animate
-							</MenuItem>
+							<SubMenu title="Material" icon={<AiTwotoneEdit/>}>
+							</SubMenu>
+							{animate ? 
+								// if animate, attach additional menuItem containing rate slider
+								<SubMenu 
+									title="Animate" 
+									icon={<FaPause onClick={() => setAnimate(false)}/>}
+									// only responds to clicking parent component (seen as icon) upon collapsed sidebar
+									onClick={(event) =>
+										collapse && event.target === event.currentTarget && setAnimate(false)
+									}
+								>
+									<span>Play Rate</span>
+									<div className="sliderWrapper">
+										<Slider 
+											getAriaValueText={(value) => (value)}
+											defaultValue={1}
+											step={0.01}
+											min={0}
+											max={2}
+											// slider values goes from 0 (mapping to 50%) all the way to 2 (mapping to 200%)
+											marks={[{value: 0, label: <span style={{ color: "#ADADAD" }}>50%</span>}, 
+															{value: 1, label: <span style={{ color: "#ADADAD" }}>100%</span>}, 
+															{value: 2, label: <span style={{ color: "#ADADAD" }}>200%</span>}]}
+											// if newVal is less than 1, then set play rate to 1/(2-newVal), else set to newVal
+											onChangeCommitted={(_, newVal) => setPlayRate(newVal < 1 ? 1/(2-newVal) : newVal)}
+										/>
+									</div>
+								</SubMenu>
+								:
+								// if !animate, render icon only
+								<MenuItem icon={<FaPlay onClick={() => setAnimate(true)}/>}>
+									Animate
+								</MenuItem>
+							}
 							<MenuItem
-								icon={<FaRedo />}
+								icon={<FaRedo/>}
 								onClick={() => {}}
 							>
 								Restart
+							</MenuItem>
+							{/* pop up info button: calls on pop up intro function in popUp.js */}
+							<MenuItem
+								icon={<IoMdHelp size="1.25em"/>}
+								onClick={()=>{}}
+							>
+								Help
 							</MenuItem>
 						</Menu> 
 					</SidebarContent>
 					<SidebarFooter>
 						<Menu iconShape="circle">
-							<MenuItem icon={collapse ? <FaGithub /> : ""} >
+							{/* if sidebar is collapsed, then attach icon */}
+							<MenuItem icon={collapse ? <FaGithub/> : ""} >
 								<a 
 									className="footerButton"
 									href="https://github.com/vjiang10/towers-of-hanoi" 
 									target="_blank"
 									rel="noreferrer"
 								>
-									<FaGithub />
+									<FaGithub/>
 									<span style={{ padding: 5 }}>View Source</span>
 								</a>  
 							</MenuItem>
@@ -155,13 +209,16 @@ const Sidebar = ({images, onBackgroundChange}) => {
 					</SidebarFooter>
 				</IconContext.Provider>
 			</ProSidebar>
+			{/* passing some state as props to GameLogic */}
 			<div className="content">
-				<GameLogic 
+				<GameLogic
+					procedure={procedure}
 					numTowers={numTowers} 
 					numDiscs={numDiscs} 
 					source={source} 
 					destination={destination}
 					animate={animate}
+					playRate={playRate}
 				/>
 			</div>
 		</>
@@ -169,23 +226,3 @@ const Sidebar = ({images, onBackgroundChange}) => {
 }
 
 export default Sidebar;
-
-/** dest 
- * <div className="towerItem">
-									{[...Array(numTowers)].map((_,i) => 
-										<span className="towerIcon" 
-											onClick={() => {
-												if (i !== source) {
-													setDestination(i);
-													click();
-												}
-											}}
-										>
-											<TbTallymark1 
-												color={i === destination ? "RoyalBlue" : "LightSeaGreen"}
-												size={35}
-											/>
-										</span>
-									)}
-								</div>
-*/
