@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import '../styles/App.css';
-import Sidebar from './Sidebar'
+import React, { useState } from "react";
+import "../styles/App.css";
+import Sidebar from "./Sidebar"
 
 function App() {
   const images = ['beach', 'bubbles', 'desert', 'ice', 'lake', 'mountains', 'purple', 'space', 'stars', 'vibrant'];

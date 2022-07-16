@@ -5,8 +5,9 @@
 
 .content {
 	height: 100vh;
-	left: 100px;
-  top: 0px;
+	width: 100vw;
+	top: 0px;
+	left: 0px;
 	position: absolute;
 }
 

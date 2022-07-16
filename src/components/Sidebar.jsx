@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { 
 	ProSidebar, 
 	SidebarHeader, 
@@ -7,10 +7,10 @@ import {
 	Menu, 
 	MenuItem, 
 	SubMenu 
-} from 'react-pro-sidebar';
-import 'react-pro-sidebar/dist/css/styles.css';
-import { Slider } from '@mui/material';
-import { IconContext } from 'react-icons';
+} from "react-pro-sidebar";
+import "react-pro-sidebar/dist/css/styles.css";
+import { Slider } from "@mui/material";
+import { IconContext } from "react-icons";
 import { 
 	FaCog, 
 	FaGripLinesVertical, 
@@ -21,11 +21,11 @@ import {
 	FaChevronDown,
 	FaRedo, 
 	FaGithub 
-} from 'react-icons/fa';
-import { AiOutlineCaretRight, AiFillPicture, AiTwotoneEdit } from 'react-icons/ai';
-import { TbTallymark1 } from 'react-icons/tb';
-import { IoMdHelp, IoMdMore } from 'react-icons/io';
-import GameLogic from './GameLogic';
+} from "react-icons/fa";
+import { AiOutlineCaretRight, AiFillPicture, AiTwotoneEdit } from "react-icons/ai";
+import { TbTallymark1 } from "react-icons/tb";
+import { IoMdHelp, IoMdMore } from "react-icons/io";
+import GameLogic from "./GameLogic";
 
 const Sidebar = ({images, onBackgroundChange}) => {
 	// separate state for rendering options
@@ -37,6 +37,14 @@ const Sidebar = ({images, onBackgroundChange}) => {
 	const [destination, setDestination] = useState(numTowers-1);
 	const [animate, setAnimate] = useState(false);
 	const [playRate, setPlayRate] = useState(1);
+
+	const handleSpacebar = (event) => event.code === "Space" && setAnimate(!animate)
+
+	// toggles animate on spacebar
+	useEffect(() => {
+		document.addEventListener("keyup", handleSpacebar);
+		return () => document.removeEventListener("keyup", handleSpacebar);
+	});
 
 	// common slider props
 	const sliderProps = {
@@ -52,21 +60,22 @@ const Sidebar = ({images, onBackgroundChange}) => {
 	// produces tower item containing tower icons 
 	const towerItem = (dir, set) => (
 		<div className="towerItem">
-			{/* tower icons generation, loops through array of length numTowers */}
-			{[...Array(numTowers)].map((_, index) => 
-				<span className="towerIcon" 
-					key={index}
-					style={{ 
-						background: `linear-gradient(transparent 50%, ${index === dir ? "DeepSkyBlue" : "Cyan"} 50%` 
-					}}
-					onClick={() => index !== source && index !== destination && set(index)}
-				>
-					<TbTallymark1 
-						color={index === dir ? "RoyalBlue" : "LightSeaGreen"}
-						size={35}
-					/>
-				</span>
-			)}
+			{/* tower icons generation, loops through array of length numTowers */
+				[...Array(numTowers)].map((_, index) => 
+					<span className="towerIcon" 
+						key={index}
+						style={{ 
+							background: `linear-gradient(transparent 50%, ${index === dir ? "DeepSkyBlue" : "Cyan"} 50%` 
+						}}
+						onClick={() => index !== source && index !== destination && set(index)}
+					>
+						<TbTallymark1 
+							color={index === dir ? "RoyalBlue" : "LightSeaGreen"}
+							size={35}
+						/>
+					</span>
+				)
+			}
 		</div>
 	);
 
@@ -79,17 +88,18 @@ const Sidebar = ({images, onBackgroundChange}) => {
 				<IconContext.Provider className="sidebar" value={{ color: "LightSeaGreen" }}>
 					<SidebarHeader>
 						<Menu iconShape="circle">
-							<MenuItem icon={<FaCog/>} onClick={() => setCollapse(!collapse)}>
+							<MenuItem icon={<FaCog />} onClick={() => setCollapse(!collapse)}>
 								OPTIONS
 							</MenuItem>
 						</Menu>
 					</SidebarHeader>
 					<SidebarContent>
 						<Menu iconShape="circle">
-							<SubMenu title="Rules and Variants" icon={<IoMdMore size="1.5em"/>}>
+							<SubMenu title="Rules and Variants" icon={<IoMdMore size="1.5em" />}>
 								{procedures.map((option, index) => 
 									<MenuItem 
-										icon={option === procedures[procedure] && <AiOutlineCaretRight/>}
+										key={option}
+										icon={option === procedures[procedure] && <AiOutlineCaretRight />}
 										style={{ color: option === procedures[procedure] ? "#ADADAD" : "LightSeaGreen" }} 
 										onClick={() => setProcedure(index)}
 									>
@@ -97,22 +107,20 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									</MenuItem>
 								)}
 							</SubMenu>
-							<SubMenu title="Number of Towers" icon={<FaGripLinesVertical/>}>
+							<SubMenu title="Number of Towers" icon={<FaGripLinesVertical />}>
 								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}> 
 									<Slider
 										{...sliderProps}
 										defaultValue={numTowers}
 										onChangeCommitted={(_, newVal) => {
 											setNumTowers(newVal)
-											// limit destiation and source to newVal-1
-											// ensure destination and source cannot be set on top of each other
-											destination < newVal || setDestination(newVal-1 - (source === newVal-1 ? 1 : 0));
-											source < newVal || setSource(newVal-1 - (destination === newVal-1 ? 1 : 0));
+											setSource(0);
+											setDestination(newVal-1);
 										}}
 									/>
 								</div>
 							</SubMenu>
-							<SubMenu title="Number of Discs" icon={<FaGripLines/>}>
+							<SubMenu title="Number of Discs" icon={<FaGripLines />}>
 								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}>
 									<Slider
 										{...sliderProps}
@@ -121,14 +129,14 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									/>
 								</div>
 							</SubMenu>
-							<SubMenu title="Source Tower" icon={<FaChevronUp/>}>
+							<SubMenu title="Source Tower" icon={<FaChevronUp />}>
 								{towerItem(source, setSource)}
 							</SubMenu>
-							<SubMenu title="Destination Tower" icon={<FaChevronDown/>}>
+							<SubMenu title="Destination Tower" icon={<FaChevronDown />}>
 								{towerItem(destination, setDestination)}
 							</SubMenu>
 							{/* theme options (sets background image) */}
-							<SubMenu title="Themes" icon={<AiFillPicture/>}>
+							<SubMenu title="Themes" icon={<AiFillPicture />}>
 								{images.map((image, index) => 
 									<div className="themeItem"
 										key={image} 
@@ -141,13 +149,13 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									</div>
 								)}
 							</SubMenu>
-							<SubMenu title="Material" icon={<AiTwotoneEdit/>}>
+							<SubMenu title="Material" icon={<AiTwotoneEdit />}>
 							</SubMenu>
 							{animate ? 
 								// if animate, attach additional menuItem containing rate slider
 								<SubMenu 
 									title="Animate" 
-									icon={<FaPause onClick={() => setAnimate(false)}/>}
+									icon={<FaPause onClick={() => setAnimate(false)} />}
 									// only responds to clicking parent component (seen as icon) upon collapsed sidebar
 									onClick={(event) =>
 										collapse && event.target === event.currentTarget && setAnimate(false)
@@ -172,19 +180,19 @@ const Sidebar = ({images, onBackgroundChange}) => {
 								</SubMenu>
 								:
 								// if !animate, render icon only
-								<MenuItem icon={<FaPlay onClick={() => setAnimate(true)}/>}>
+								<MenuItem icon={<FaPlay onClick={() => setAnimate(true)} />}>
 									Animate
 								</MenuItem>
 							}
 							<MenuItem
-								icon={<FaRedo/>}
+								icon={<FaRedo />}
 								onClick={() => {}}
 							>
 								Restart
 							</MenuItem>
 							{/* pop up info button: calls on pop up intro function in popUp.js */}
 							<MenuItem
-								icon={<IoMdHelp size="1.25em"/>}
+								icon={<IoMdHelp size="1.25em" />}
 								onClick={()=>{}}
 							>
 								Help
@@ -194,14 +202,14 @@ const Sidebar = ({images, onBackgroundChange}) => {
 					<SidebarFooter>
 						<Menu iconShape="circle">
 							{/* if sidebar is collapsed, then attach icon */}
-							<MenuItem icon={collapse ? <FaGithub/> : ""} >
+							<MenuItem icon={collapse ? <FaGithub /> : ""} >
 								<a 
 									className="footerButton"
 									href="https://github.com/vjiang10/towers-of-hanoi" 
 									target="_blank"
 									rel="noreferrer"
 								>
-									<FaGithub/>
+									<FaGithub />
 									<span style={{ padding: 5 }}>View Source</span>
 								</a>  
 							</MenuItem>
@@ -210,7 +218,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 				</IconContext.Provider>
 			</ProSidebar>
 			{/* passing some state as props to GameLogic */}
-			<div className="content">
+			<div onMouseDown={() => setAnimate(false)}>
 				<GameLogic
 					procedure={procedure}
 					numTowers={numTowers} 
