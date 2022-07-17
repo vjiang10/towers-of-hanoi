@@ -4,6 +4,7 @@ Animation and puzzle game based on the Towers of Hanoi problem created using Rea
 
 App contains background image state, updated from sidebar (state passed down?).
 Sidebar changes rendering variables, passes arguments to game logic, which sets up animation, sound, and disc and tower states and rules. Animation (including dropping the discs) should be passed props for sound based on material of the disc and towers.
+Supports zooming and and zooming out. Testing for mobile compatibility.
 
 - Include example gif here.
 - Add different features.

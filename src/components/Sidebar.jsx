@@ -28,6 +28,8 @@ import { IoMdHelp, IoMdMore } from "react-icons/io";
 import GameLogic from "./GameLogic";
 
 const Sidebar = ({images, onBackgroundChange}) => {
+	const textures = ["metal", "granite", "wood", "stone"];
+
 	// separate state for rendering options
 	const [collapse, setCollapse] = useState(false);
 	const [procedure, setProcedure] = useState(0);
@@ -35,16 +37,12 @@ const Sidebar = ({images, onBackgroundChange}) => {
 	const [numDiscs, setNumDiscs] = useState(3);
 	const [source, setSource] = useState(0);
 	const [destination, setDestination] = useState(numTowers-1);
+	const [texture, setTexture] = useState(Math.floor(textures.length * Math.random()));
 	const [animate, setAnimate] = useState(false);
 	const [playRate, setPlayRate] = useState(1);
 
-	const handleSpacebar = (event) => event.code === "Space" && setAnimate(!animate)
-
 	// toggles animate on spacebar
-	useEffect(() => {
-		document.addEventListener("keyup", handleSpacebar);
-		return () => document.removeEventListener("keyup", handleSpacebar);
-	});
+	window.onkeyup = (event) => event.code === "Space" && setAnimate(!animate);
 
 	// common slider props
 	const sliderProps = {
@@ -100,7 +98,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									<MenuItem 
 										key={option}
 										icon={option === procedures[procedure] && <AiOutlineCaretRight />}
-										style={{ color: option === procedures[procedure] ? "#ADADAD" : "LightSeaGreen" }} 
+										style={{ color: option === procedures[procedure] ? "LightSeaGreen" : "#ADADAD" }} 
 										onClick={() => setProcedure(index)}
 									>
 										{option}
@@ -113,9 +111,20 @@ const Sidebar = ({images, onBackgroundChange}) => {
 										{...sliderProps}
 										defaultValue={numTowers}
 										onChangeCommitted={(_, newVal) => {
-											setNumTowers(newVal)
-											setSource(0);
-											setDestination(newVal-1);
+											// change effect if decreasing
+											const effect = () => {
+												setNumTowers(newVal)
+												setSource(0);
+												setDestination(newVal-1);
+											}
+
+											// popUp for confirmation, returns true if user confirmed, else false
+											const confirm = () => true;
+
+											newVal < numTowers ? 
+												confirm() ? effect() : setCollapse(!collapse)
+											: 
+												setNumTowers(newVal);
 										}}
 									/>
 								</div>
@@ -138,18 +147,23 @@ const Sidebar = ({images, onBackgroundChange}) => {
 							{/* theme options (sets background image) */}
 							<SubMenu title="Themes" icon={<AiFillPicture />}>
 								{images.map((image, index) => 
-									<div className="themeItem"
+									<MenuItem className="themeItem" 
 										key={image} 
-										style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/images/${images[index]}.jpg)` }}
+										style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/assets/images/${images[index]}.jpg)` }} 
 										onClick={() => onBackgroundChange(index)}
-									>
-										<MenuItem>
-											{image[0].toUpperCase() + image.substring(1)}
-										</MenuItem>
-									</div>
+									>		
+										{image[0].toUpperCase() + image.substring(1)}
+									</MenuItem>
 								)}
 							</SubMenu>
 							<SubMenu title="Material" icon={<AiTwotoneEdit />}>
+								{textures.map((image, index) => 
+									<MenuItem className="materialItem"
+										key={image}
+										style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/assets/textures/${textures[index]}/preview.jpg)` }}
+										onClick={() => setTexture(index)}
+									/>
+								)}
 							</SubMenu>
 							{animate ? 
 								// if animate, attach additional menuItem containing rate slider
@@ -163,9 +177,9 @@ const Sidebar = ({images, onBackgroundChange}) => {
 								>
 									<span>Play Rate</span>
 									<div className="sliderWrapper">
-										<Slider 
+										<Slider
 											getAriaValueText={(value) => (value)}
-											defaultValue={1}
+											defaultValue={playRate < 1 ? 2-1/playRate: playRate}
 											step={0.01}
 											min={0}
 											max={2}
@@ -225,6 +239,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 					numDiscs={numDiscs} 
 					source={source} 
 					destination={destination}
+					texture={textures[texture]}
 					animate={animate}
 					playRate={playRate}
 				/>
