@@ -109,7 +109,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}> 
 									<Slider
 										{...sliderProps}
-										defaultValue={numTowers}
+										value={numTowers}
 										onChangeCommitted={(_, newVal) => {
 											// change effect if decreasing
 											const effect = () => {
@@ -122,7 +122,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 											const confirm = () => true;
 
 											newVal < numTowers ? 
-												confirm() ? effect() : setCollapse(!collapse)
+												confirm() && effect() 
 											: 
 												setNumTowers(newVal);
 										}}
@@ -133,7 +133,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}>
 									<Slider
 										{...sliderProps}
-										defaultValue={numDiscs}
+										value={numDiscs}
 										onChangeCommitted={(_, newVal) => setNumDiscs(newVal)}
 									/>
 								</div>
@@ -179,7 +179,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									<div className="sliderWrapper">
 										<Slider
 											getAriaValueText={(value) => (value)}
-											defaultValue={playRate < 1 ? 2-1/playRate: playRate}
+											value={playRate < 1 ? 2-1/playRate: playRate}
 											step={0.01}
 											min={0}
 											max={2}
