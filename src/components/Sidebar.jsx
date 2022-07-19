@@ -55,6 +55,17 @@ const Sidebar = ({images, onBackgroundChange}) => {
 		max: 7
 	};
 
+	// resets gameState
+	const reset = () => {
+		const delaySet = async (source) => await new Promise(() => setTimeout(() => setSource(source), 0));
+		// set out of bounds to avoid collision with destination
+		setSource(8);
+		delaySet(source);
+	}
+
+	// rerenders gameState (solution to rendering error when setting Disc positions)
+	useEffect(() => reset(), [numDiscs, numTowers]);
+
 	// produces tower item containing tower icons 
 	const towerItem = (dir, set) => (
 		<div className="towerItem">
@@ -200,7 +211,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 							}
 							<MenuItem
 								icon={<FaRedo />}
-								onClick={() => {}}
+								onClick={() => reset()}
 							>
 								Restart
 							</MenuItem>

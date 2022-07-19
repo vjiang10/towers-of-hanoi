@@ -2,7 +2,7 @@ import React from "react";
 import { useTexture } from "@react-three/drei";
 
 // Tower component to be rendered and used in GameLogic
-const Tower = ({ position, scale, toUrl, numDiscs }) => {
+const Tower = ({ position, toUrl, numDiscs }) => {
   // loading texture maps
   const textureProps = useTexture({
     map: toUrl("map"),
@@ -13,7 +13,7 @@ const Tower = ({ position, scale, toUrl, numDiscs }) => {
   });
 
   return (
-    <group scale={scale}>
+    <group>
       <mesh position={position}>
         <cylinderBufferGeometry args={[0.15, 0.15, 1.2 + 2.4*numDiscs/7]} />
         <meshPhysicalMaterial {...textureProps} roughness={1} attach="material" />
