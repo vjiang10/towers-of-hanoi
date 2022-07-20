@@ -64,7 +64,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 	}
 
 	// rerenders gameState (solution to rendering error when setting Disc positions)
-	useEffect(() => reset(), [numDiscs, numTowers]);
+	useEffect(() => reset(), [numDiscs, numTowers, procedure]);
 
 	// produces tower item containing tower icons 
 	const towerItem = (dir, set) => (

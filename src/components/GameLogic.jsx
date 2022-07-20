@@ -13,7 +13,10 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
   const [gameState, setGameState] = useState([]);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [screenHeight, setScreenHeight] = useState(window.innerHeight);
-  const [click] = useSound(process.env.PUBLIC_URL + "/assets/sounds/click.mp3");
+  const path = `${process.env.PUBLIC_URL}/assets/sounds/`;
+  const [click] = useSound(`${path}click.mp3`);
+  const [winSound] = useSound(`${path}win.mp3`);
+  const [sound] = useSound(`${path}${texture}.mp3`);
   const numRenders = useRef(0);
 
   // resets gameState
@@ -32,11 +35,13 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
 
   // check for winning state in gameState after gameState mutation
   useEffect(() => {
-    gameState.forEach((towerState, index) => {
-      towerState.length === numDiscs &&
-      index === destination &&
-      alert("Congratulations, you solved the puzzle!");
-    })
+    sound();
+    // TODO: import from popUp.js
+    const winPopUp = () => {
+
+    }
+    const destTower = gameState[destination];
+    destTower && destTower.length === numDiscs && winSound() && winPopUp();
   }, [gameState, numDiscs, destination]);
 
   // solution animation
@@ -80,11 +85,11 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
     setScreenHeight(window.innerHeight);
   }
 
-  // for gameState mutation (called by Disc components)
+  // gameState mutation (called by Disc components)
   const changeGameState = (from, to) => {
-    const newState = [...gameState];
+    // identity
+    const newState = gameState.map(x => x);
     const radius = newState[from].pop();
-    console.log(radius);
     newState[to].push(radius);
     setGameState(newState);
   }
@@ -123,7 +128,8 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
                     key={radius}
                     gameState={gameState}
                     changeGameState={changeGameState}
-                    height={scale*(1.2*numDiscs/7)}
+                    scale={scale}
+                    numDiscs={numDiscs}
                     space={space}
                     towerIndex={towerIndex}
                     position={[width(-8.1, towerIndex), -2 - numDiscs/14 + 0.4*(discIndex+1), 0]}

@@ -6,20 +6,41 @@ import { useGesture } from "@use-gesture/react";
 import { useSpring, a } from "@react-spring/three";
 import { isValidMove } from "../../helpers/procedures";
 
-const Disc = ({ gameState, changeGameState, height, space, towerIndex, position, radius, toUrl, procedure }) => {
+const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, position, radius, toUrl, procedure }) => {
   // current tower state
   const towerState = gameState[towerIndex];
+  // height of current tower
+  const height = scale*(1.2*numDiscs/7)
   // is this the topmost disc?
   const isTop = towerState === undefined ? false : towerState.at(-1) === radius;
+
+  // aspect ratio
   const { size, viewport } = useThree();
-  const aspect = size.width / viewport.width * 1.2;
+  const aspect = size.width / viewport.width * scale;
+
+  // finds nearest tower index (1-indexed)
+  const findIndex = (currPos) => {
+    let pos = JSON.stringify(currPos);
+    pos = pos.substring(1, pos.length-1);
+    pos = pos.split(",");
+    // use x-coordinate to determine closest tower index
+    const x = parseInt(pos[0]);
+    const offset = 8.1;
+    return Math.round((x+offset) / space);
+  }
+
+  // finds nearest tower position
+  const findTower = (currPos) => {
+    const index = findIndex(currPos);
+    return (index)*space - 8.1;
+  }
 
   const [spring, set] = useSpring(() => 
     ({ 
       position: position, 
       rotation: [Math.PI/2, 0, 0], 
-      reset: true, 
-      config: { friction: 30, mass: radius**2} 
+      reset: true,
+      config: { friction: 20, mass: radius**2} 
     })
   );
 
@@ -32,7 +53,9 @@ const Disc = ({ gameState, changeGameState, height, space, towerIndex, position,
       mx += position[0]
       my -= position[1]
       // is topmost disc in tower?
-      isTop && -my <= height && set({ position: [position[0], Math.max(-my, position[1]), 0] });
+      isTop && -my <= height && set({
+        position: [findTower(spring.position), Math.max(-my, position[1]), 0] 
+      });
       // rotation within tower
       const withRotation = () => set({ rotation: [Math.PI/2, 0, -mx / radius**3 / 5] });
       // only topmost disc out of tower has no rotation
@@ -41,21 +64,28 @@ const Disc = ({ gameState, changeGameState, height, space, towerIndex, position,
   });
 
   // potential gameState mutation
-  const handlePointerUp = () => {
-    let pos = JSON.stringify(spring.position);
-    pos = pos.substring(1, pos.length-1);
-    pos = pos.split(",");
-    // use x-coordinate to determine closest tower
-    const x = parseInt(pos[0]);
-    const offset = 8.1
-    const to = Math.round((x+offset) / space) - 1;
-    const invalid = () => {
-      // TODO: try to directing end pointer event
-      changeGameState(towerIndex, towerIndex);
+  const handlePointerUp = (event) => {
+    // stop propagation to other components
+    event.stopPropagation();
+    // convert to 0-indexed
+    let to = findIndex(spring.position) - 1;
+    // set boundaries
+    to = to < 0 ? 0 : to >= numDiscs ? numDiscs-1 : to;
+    const valid = () => {
+      // delays setting new state until after animation
+      const delaySet = async (towerIndex, to) => 
+        await new Promise(() => 
+          setTimeout(() => changeGameState(towerIndex, to), 500)
+        );
+      set({ 
+        position: [(to+1)*space - 8.1, -2 - numDiscs/14 + 0.4*(gameState[to].length+1), 0],
+        rotation: [Math.PI/2, 0, 0]
+      });
+      delaySet(towerIndex, to);
     }
-    isValidMove(procedure, gameState, towerIndex, to) ?
-      changeGameState(towerIndex, to) :
-      invalid();
+    isValidMove(procedure, gameState, towerIndex, to) ? valid() : set({ position: position });
+    // release pointer capture
+    event.target.releasePointerCapture(event.pointerId);
   };
 
   // loading texture maps
@@ -92,7 +122,11 @@ const Disc = ({ gameState, changeGameState, height, space, towerIndex, position,
   };
 
 	return (
-    <a.mesh {...spring} {...bind()} onPointerUp={handlePointerUp}>
+    <a.mesh 
+      {...spring} 
+      {...bind()}
+      onPointerUp={event => handlePointerUp(event)}
+    >
       <extrudeBufferGeometry args={[circle, extrudeSettings]} />
       <meshPhysicalMaterial 
         {...textureProps} 
