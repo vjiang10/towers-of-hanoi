@@ -45,6 +45,11 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
   );
 
   const bind = useGesture({
+    onPointerDown: (state) => {
+      const event = state.event;
+      event.stopPropagation();
+      event.target.setPointerCapture(event.pointerId);
+    },
     onDrag: ({ movement: [mx, my] }) => {
       // scale
       mx /= aspect;
@@ -57,10 +62,13 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
         position: [findTower(spring.position), Math.max(-my, position[1]), 0] 
       });
       // rotation within tower
-      const withRotation = () => set({ rotation: [Math.PI/2, 0, -mx / radius**3 / 5] });
+      const withRotation = () => {set({ rotation: [Math.PI/2, 0, -mx / radius**3 / 5] })};
       // only topmost disc out of tower has no rotation
       isTop && -my > height && isTop ? set({ position: [mx, -my, 0] }) : withRotation();
     },
+    onPointerUp: (state) => {
+      handlePointerUp(state.event);
+    }
   });
 
   // potential gameState mutation
@@ -73,10 +81,11 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
     to = to < 0 ? 0 : to >= numDiscs ? numDiscs-1 : to;
     const valid = () => {
       // delays setting new state until after animation
-      const delaySet = async (towerIndex, to) => 
-        await new Promise(() => 
-          setTimeout(() => changeGameState(towerIndex, to), 500)
-        );
+      const delaySet = async (towerIndex, to) => {
+        await new Promise(() =>  {
+          setTimeout(() => {changeGameState(towerIndex, to)}, 700)
+        });
+      }
       set({ 
         position: [(to+1)*space - 8.1, -2 - numDiscs/14 + 0.4*(gameState[to].length+1), 0],
         rotation: [Math.PI/2, 0, 0]
@@ -107,7 +116,7 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
 
   // hole
   let hole = new THREE.Path();
-  hole.arc(0, 0, 0.32);
+  hole.arc(0, 0, 0.30);
   circle.holes.push(hole);
 
   // extrude props
@@ -122,11 +131,7 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
   };
 
 	return (
-    <a.mesh 
-      {...spring} 
-      {...bind()}
-      onPointerUp={event => handlePointerUp(event)}
-    >
+    <a.mesh {...spring} {...bind()}>
       <extrudeBufferGeometry args={[circle, extrudeSettings]} />
       <meshPhysicalMaterial 
         {...textureProps} 

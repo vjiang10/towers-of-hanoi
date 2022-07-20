@@ -42,7 +42,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 	const [playRate, setPlayRate] = useState(1);
 
 	// toggles animate on spacebar
-	window.onkeyup = (event) => event.code === "Space" && setAnimate(!animate);
+	window.onkeyup = (event) => {event.code === "Space" && setAnimate(!animate)};
 
 	// common slider props
 	const sliderProps = {
@@ -57,14 +57,18 @@ const Sidebar = ({images, onBackgroundChange}) => {
 
 	// resets gameState
 	const reset = () => {
-		const delaySet = async (source) => await new Promise(() => setTimeout(() => setSource(source), 0));
+		const delaySet = async (source) => {
+			await new Promise(() => {
+				setTimeout(() => {setSource(source)}, 0)
+			});
+		}
 		// set out of bounds to avoid collision with destination
 		setSource(8);
 		delaySet(source);
 	}
 
 	// rerenders gameState (solution to rendering error when setting Disc positions)
-	useEffect(() => reset(), [numDiscs, numTowers, procedure]);
+	useEffect(() => {reset()}, [numDiscs, numTowers, procedure]);
 
 	// produces tower item containing tower icons 
 	const towerItem = (dir, set) => (
@@ -76,7 +80,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 						style={{ 
 							background: `linear-gradient(transparent 50%, ${index === dir ? "DeepSkyBlue" : "Cyan"} 50%` 
 						}}
-						onClick={() => index !== source && index !== destination && set(index)}
+						onClick={() => {index !== source && index !== destination && set(index)}}
 					>
 						<TbTallymark1 
 							color={index === dir ? "RoyalBlue" : "LightSeaGreen"}
@@ -97,7 +101,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 				<IconContext.Provider className="sidebar" value={{ color: "LightSeaGreen" }}>
 					<SidebarHeader>
 						<Menu iconShape="circle">
-							<MenuItem icon={<FaCog />} onClick={() => setCollapse(!collapse)}>
+							<MenuItem icon={<FaCog />} onClick={() => {setCollapse(!collapse)}}>
 								OPTIONS
 							</MenuItem>
 						</Menu>
@@ -110,7 +114,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 										key={option}
 										icon={option === procedures[procedure] && <AiOutlineCaretRight />}
 										style={{ color: option === procedures[procedure] ? "LightSeaGreen" : "#ADADAD" }} 
-										onClick={() => setProcedure(index)}
+										onClick={() => {setProcedure(index)}}
 									>
 										{option}
 									</MenuItem>
@@ -145,7 +149,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									<Slider
 										{...sliderProps}
 										value={numDiscs}
-										onChangeCommitted={(_, newVal) => setNumDiscs(newVal)}
+										onChangeCommitted={(_, newVal) => {setNumDiscs(newVal)}}
 									/>
 								</div>
 							</SubMenu>
@@ -161,7 +165,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									<MenuItem className="themeItem" 
 										key={image} 
 										style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/assets/images/${images[index]}.jpg)` }} 
-										onClick={() => onBackgroundChange(index)}
+										onClick={() => {onBackgroundChange(index)}}
 									>		
 										{image[0].toUpperCase() + image.substring(1)}
 									</MenuItem>
@@ -172,7 +176,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									<MenuItem className="materialItem"
 										key={image}
 										style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/assets/textures/${textures[index]}/preview.jpg)` }}
-										onClick={() => setTexture(index)}
+										onClick={() => {setTexture(index)}}
 									/>
 								)}
 							</SubMenu>
@@ -180,16 +184,16 @@ const Sidebar = ({images, onBackgroundChange}) => {
 								// if animate, attach additional menuItem containing rate slider
 								<SubMenu 
 									title="Animate" 
-									icon={<FaPause onClick={() => setAnimate(false)} />}
+									icon={<FaPause onClick={() => {setAnimate(false)}} />}
 									// only responds to clicking parent component (seen as icon) upon collapsed sidebar
-									onClick={(event) =>
+									onClick={(event) => {
 										collapse && event.target === event.currentTarget && setAnimate(false)
-									}
+									}}
 								>
 									<span>Play Rate</span>
 									<div className="sliderWrapper">
 										<Slider
-											getAriaValueText={(value) => (value)}
+											getAriaValueText={(value) => value}
 											value={playRate < 1 ? 2-1/playRate: playRate}
 											step={0.01}
 											min={0}
@@ -199,26 +203,26 @@ const Sidebar = ({images, onBackgroundChange}) => {
 															{value: 1, label: <span style={{ color: "#ADADAD" }}>100%</span>}, 
 															{value: 2, label: <span style={{ color: "#ADADAD" }}>200%</span>}]}
 											// if newVal is less than 1, then set play rate to 1/(2-newVal), else set to newVal
-											onChangeCommitted={(_, newVal) => setPlayRate(newVal < 1 ? 1/(2-newVal) : newVal)}
+											onChangeCommitted={(_, newVal) => {setPlayRate(newVal < 1 ? 1/(2-newVal) : newVal)}}
 										/>
 									</div>
 								</SubMenu>
 								:
 								// if !animate, render icon only
-								<MenuItem icon={<FaPlay onClick={() => setAnimate(true)} />}>
+								<MenuItem icon={<FaPlay onClick={() => {setAnimate(true)}} />}>
 									Animate
 								</MenuItem>
 							}
 							<MenuItem
 								icon={<FaRedo />}
-								onClick={() => reset()}
+								onClick={() => {reset()}}
 							>
 								Restart
 							</MenuItem>
 							{/* pop up info button: calls on pop up intro function in popUp.js */}
 							<MenuItem
 								icon={<IoMdHelp size="1.25em" />}
-								onClick={()=>{}}
+								onClick={() => {}}
 							>
 								Help
 							</MenuItem>
@@ -243,7 +247,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 				</IconContext.Provider>
 			</ProSidebar>
 			{/* passing some state as props to GameLogic */}
-			<div onMouseDown={() => setAnimate(false)}>
+			<div onMouseDown={() => {setAnimate(false)}}>
 				<GameLogic
 					procedure={procedure}
 					numTowers={numTowers} 

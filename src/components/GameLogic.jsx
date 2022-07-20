@@ -22,7 +22,7 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
   // resets gameState
   useEffect(() => {
     // initial disc state (ordered least to small)
-    const initDiscs = [...Array(numDiscs)].map((_, index) => 0.7-0.35*index/(numDiscs-1));
+    const initDiscs = [...Array(numDiscs)].map((_, index) => 0.7-0.38*index/(numDiscs-1));
     // initial game state
     const initGameState = [...Array(numTowers)].map((_, index) => index === source ? initDiscs : []);
     // TODO dropDown animation
