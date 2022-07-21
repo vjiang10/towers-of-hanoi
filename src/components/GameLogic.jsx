@@ -5,11 +5,11 @@ import { Canvas } from "@react-three/fiber";
 import Disc from "./game/Disc";
 import Tower from "./game/Tower";
 import { PerspectiveCamera } from "@react-three/drei";
+import { winCondition } from "../helpers/procedures";
 
 const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, texture, animate }) => {
   // gameState is an array whose elements represent individual tower states
   // maintained as an array, similating stack, of Disc sizes (unique identifier)
-  // call alert whenever gameState is about to be reset (perhaps insider the function call to reset())
   const [gameState, setGameState] = useState([]);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [screenHeight, setScreenHeight] = useState(window.innerHeight);
@@ -24,10 +24,18 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
     // initial disc state (ordered least to small)
     const initDiscs = [...Array(numDiscs)].map((_, index) => 0.7-0.38*index/(numDiscs-1));
     // initial game state
-    const initGameState = [...Array(numTowers)].map((_, index) => index === source ? initDiscs : []);
+    const initGameState = [...Array(numTowers)].map((_, index) => 
+      index === source ? initDiscs : 
+      (
+        // bicolor procedure check
+        procedure === 1 && 
+        (source < numTowers-1 ? index === source+1 : index === numTowers-2)
+      )
+      ? initDiscs.map(x => x-0.01) : []
+    );
     // TODO dropDown animation
     setGameState(initGameState);
-  }, [numDiscs, source, numTowers]);
+  }, [numDiscs, source, numTowers, procedure]);
 
   // click sound effect played upon sidebar state change
   useEffect(() => {numRenders.current++ < 3 || click()}, 
@@ -35,13 +43,12 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
 
   // check for winning state in gameState after gameState mutation
   useEffect(() => {
-    sound();
     // TODO: import from popUp.js
     const winPopUp = () => {
 
     }
-    const destTower = gameState[destination];
-    destTower && destTower.length === numDiscs && winSound() && winPopUp();
+    winCondition(procedure, numDiscs, gameState[source], gameState[destination]) ? 
+      winSound() && winPopUp() : sound();
   }, [gameState, numDiscs, destination]);
 
   // solution animation
@@ -54,12 +61,9 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
   }, [animate]);
 
   // Don't forget to return removeEventListener if needed
-	// space bar and 'mousedown' to toggle animation if animation button is enabled
   useEffect(() => {
 
   }, []);
-  // animateDrop (in effects.js, which calls on procedures.js) will be passed down and called by discs after release to change gameState
-  // const animateDrop = ((ref to disc), height, gameState?)
 
   // --- Positioning ---
 
@@ -85,6 +89,8 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
     setScreenHeight(window.innerHeight);
   }
 
+  // --- methods passed as Disc props ---
+
   // gameState mutation (called by Disc components)
   const changeGameState = (from, to) => {
     // identity
@@ -106,7 +112,7 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
           <spotLight position={[-30, 20, 20]} intensity={0.8} />
           <spotLight position={[-50, -40, 20]} intensity={0.8} />
           <spotLight position={[50, 40, 20]} intensity={0.8} />          
-          <PerspectiveCamera makeDefault fov={45} aspect={0.3} position={[0,0,10]} near={1} far={20} />
+          <PerspectiveCamera makeDefault fov={45} aspect={0.5} position={[0,0,10]} near={1} far={20} />
           <group scale={scale}>
             {/* initial Tower rendering */
               [...Array(numTowers)].map((_, index) =>

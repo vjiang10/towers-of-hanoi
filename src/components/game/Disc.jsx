@@ -19,20 +19,25 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
   const aspect = size.width / viewport.width * scale;
 
   // finds nearest tower index (1-indexed)
-  const findIndex = (currPos) => {
+  const findTowerIndex = (currPos) => {
     let pos = JSON.stringify(currPos);
     pos = pos.substring(1, pos.length-1);
     pos = pos.split(",");
     // use x-coordinate to determine closest tower index
-    const x = parseInt(pos[0]);
+    const x = parseFloat(pos[0]);
     const offset = 8.1;
     return Math.round((x+offset) / space);
   }
 
+  // sets boundaries on index (0 <= index < numTowers)
+  const withinBoundary = (index) => 
+    index < 0 ? 0 : index >= gameState.length ? gameState.length-1 : index;
+
   // finds nearest tower position
   const findTower = (currPos) => {
-    const index = findIndex(currPos);
-    return (index)*space - 8.1;
+    // finds index (0-indexed)
+    let index = withinBoundary(findTowerIndex(currPos) - 1);
+    return (index+1)*space - 8.1;
   }
 
   const [spring, set] = useSpring(() => 
@@ -76,14 +81,12 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
     // stop propagation to other components
     event.stopPropagation();
     // convert to 0-indexed
-    let to = findIndex(spring.position) - 1;
-    // set boundaries
-    to = to < 0 ? 0 : to >= numDiscs ? numDiscs-1 : to;
+    const to = withinBoundary(findTowerIndex(spring.position) - 1);
     const valid = () => {
       // delays setting new state until after animation
       const delaySet = async (towerIndex, to) => {
         await new Promise(() =>  {
-          setTimeout(() => {changeGameState(towerIndex, to)}, 700)
+          setTimeout(() => {changeGameState(towerIndex, to)}, 550)
         });
       }
       set({ 
@@ -92,7 +95,11 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
       });
       delaySet(towerIndex, to);
     }
-    isValidMove(procedure, gameState, towerIndex, to) ? valid() : set({ position: position });
+    const invalid = () => {
+      // TODO: set fading alert message / popUp (called from popUp.js)
+      set({ position: position });
+    }
+    isValidMove(gameState, procedure, towerIndex, to) ? valid() : invalid();
     // release pointer capture
     event.target.releasePointerCapture(event.pointerId);
   };
@@ -129,13 +136,23 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
 	  bevelOffset: 0.05,
 	  bevelSegments: 7
   };
+  
+  // intial disc index (used by Bicolor procedure to set color)
+  const discIndex = (numDiscs - 1)*(0.7 - radius)/0.38;
+  const round = Math.round(discIndex);
+  // add 1 to disc with similar discIndex (to reverse parity, and therefore color)
+  const bicolorIndex = Math.abs(round - discIndex) < 0.001 ? round : round+1;
 
 	return (
     <a.mesh {...spring} {...bind()}>
       <extrudeBufferGeometry args={[circle, extrudeSettings]} />
       <meshPhysicalMaterial 
-        {...textureProps} 
-        color={procedure <= 1 ? "LightCyan" : "White"} 
+        {...textureProps}  
+        color={procedure === 1 ? 
+          // change towerIndex to initial towerIndex
+          (bicolorIndex%2 === 0 ? "LightBlue" : "Cyan") : 
+          "LightCyan" 
+        }
         attach="material" 
       />
     </a.mesh>

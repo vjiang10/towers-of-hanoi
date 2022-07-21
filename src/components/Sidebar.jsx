@@ -63,12 +63,15 @@ const Sidebar = ({images, onBackgroundChange}) => {
 			});
 		}
 		// set out of bounds to avoid collision with destination
-		setSource(8);
+		setSource(-2);
 		delaySet(source);
 	}
 
 	// rerenders gameState (solution to rendering error when setting Disc positions)
-	useEffect(() => {reset()}, [numDiscs, numTowers, procedure]);
+	useEffect(() => {
+		// TODO: call alert whenever gameState is about to be reset (perhaps insider the function call to reset())
+		reset();
+	}, [numDiscs, numTowers, procedure]);
 
 	// produces tower item containing tower icons 
 	const towerItem = (dir, set) => (
@@ -93,7 +96,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 	);
 
 	// array containing string elements representing choices for different types of game rules/procedures
-	const procedures = ["Standard", "Adjacent (Coming Soon!)", "Magnetic (Coming Soon!)", "Bicolor (Coming Soon!)"];
+	const procedures = ["Standard", "Bicolor", "Adjacent"];
 
 	return (
 		<>
@@ -126,20 +129,9 @@ const Sidebar = ({images, onBackgroundChange}) => {
 										{...sliderProps}
 										value={numTowers}
 										onChangeCommitted={(_, newVal) => {
-											// change effect if decreasing
-											const effect = () => {
-												setNumTowers(newVal)
-												setSource(0);
-												setDestination(newVal-1);
-											}
-
-											// popUp for confirmation, returns true if user confirmed, else false
-											const confirm = () => true;
-
-											newVal < numTowers ? 
-												confirm() && effect() 
-											: 
-												setNumTowers(newVal);
+											setNumTowers(newVal)
+											setSource(0);
+											setDestination(newVal-1);
 										}}
 									/>
 								</div>
