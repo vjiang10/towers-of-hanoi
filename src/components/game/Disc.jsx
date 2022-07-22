@@ -96,7 +96,7 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
       delaySet(towerIndex, to);
     }
     const invalid = () => {
-      // TODO: set fading alert message / popUp (called from popUp.js)
+      // TODO: set fading alert message / modal (called from Modal.jsx)
       set({ position: position });
     }
     isValidMove(gameState, procedure, towerIndex, to) ? valid() : invalid();
@@ -149,7 +149,6 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
       <meshPhysicalMaterial 
         {...textureProps}  
         color={procedure === 1 ? 
-          // change towerIndex to initial towerIndex
           (bicolorIndex%2 === 0 ? "LightBlue" : "Cyan") : 
           "LightCyan" 
         }

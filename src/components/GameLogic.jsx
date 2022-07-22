@@ -31,7 +31,7 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
         procedure === 1 && 
         (source < numTowers-1 ? index === source+1 : index === numTowers-2)
       )
-      ? initDiscs.map(x => x-0.01) : []
+      ? initDiscs.map(x => x-0.001) : []
     );
     // TODO dropDown animation
     setGameState(initGameState);
@@ -43,12 +43,12 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
 
   // check for winning state in gameState after gameState mutation
   useEffect(() => {
-    // TODO: import from popUp.js
-    const winPopUp = () => {
+    // TODO: import from Modal.jsx
+    const winModal = () => {
 
     }
     winCondition(procedure, numDiscs, gameState[source], gameState[destination]) ? 
-      winSound() && winPopUp() : sound();
+      winSound() && winModal() : sound();
   }, [gameState, numDiscs, destination]);
 
   // solution animation

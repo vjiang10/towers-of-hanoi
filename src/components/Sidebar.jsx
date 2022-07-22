@@ -211,7 +211,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 							>
 								Restart
 							</MenuItem>
-							{/* pop up info button: calls on pop up intro function in popUp.js */}
+							{/* pop up info button: calls on pop up intro function in Modal.jsx */}
 							<MenuItem
 								icon={<IoMdHelp size="1.25em" />}
 								onClick={() => {}}
