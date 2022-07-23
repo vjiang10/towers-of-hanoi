@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 import useSound from "use-sound";
 import { Canvas } from "@react-three/fiber";
-import Disc from "./game/Disc";
-import Tower from "./game/Tower";
+import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 import { PerspectiveCamera } from "@react-three/drei";
 import { winCondition } from "../helpers/procedures";
+import Disc from "./game/Disc";
+import Tower from "./game/Tower";
 
 const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, texture, animate }) => {
   // gameState is an array whose elements represent individual tower states
@@ -39,7 +39,7 @@ const GameLogic = ({ procedure, numTowers, numDiscs, source, destination, textur
 
   // click sound effect played upon sidebar state change
   useEffect(() => {numRenders.current++ < 3 || click()}, 
-    [procedure, numTowers, numDiscs, source, destination, texture, animate, click]);
+    [procedure, texture, animate, click]);
 
   // check for winning state in gameState after gameState mutation
   useEffect(() => {

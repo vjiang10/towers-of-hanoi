@@ -14,10 +14,6 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
   // is this the topmost disc?
   const isTop = towerState === undefined ? false : towerState.at(-1) === radius;
 
-  // aspect ratio
-  const { size, viewport } = useThree();
-  const aspect = size.width / viewport.width * scale;
-
   // finds nearest tower index (1-indexed)
   const findTowerIndex = (currPos) => {
     let pos = JSON.stringify(currPos);
@@ -39,6 +35,10 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
     let index = withinBoundary(findTowerIndex(currPos) - 1);
     return (index+1)*space - 8.1;
   }
+
+  // aspect ratio
+  const { size, viewport } = useThree();
+  const aspect = size.width / viewport.width * scale;
 
   const [spring, set] = useSpring(() => 
     ({ 
@@ -64,10 +64,15 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
       my -= position[1]
       // is topmost disc in tower?
       isTop && -my <= height && set({
-        position: [findTower(spring.position), Math.max(-my, position[1]), 0] 
+        position: [
+          findTower(spring.position), 
+          Math.max(-my, -2 - numDiscs/14 + 0.4*
+            (gameState[withinBoundary(findTowerIndex(spring.position) - 1)].length + 1)), 
+          0
+        ] 
       });
       // rotation within tower
-      const withRotation = () => {set({ rotation: [Math.PI/2, 0, -mx / radius**3 / 5] })};
+      const withRotation = () => {set({ rotation: [Math.PI/2, 0, -mx / radius**3 / 10] })};
       // only topmost disc out of tower has no rotation
       isTop && -my > height && isTop ? set({ position: [mx, -my, 0] }) : withRotation();
     },
@@ -80,13 +85,13 @@ const Disc = ({ gameState, changeGameState, scale, numDiscs, space, towerIndex, 
   const handlePointerUp = (event) => {
     // stop propagation to other components
     event.stopPropagation();
-    // convert to 0-indexed
+    // index of tower disc will move to (0-indexed)
     const to = withinBoundary(findTowerIndex(spring.position) - 1);
     const valid = () => {
       // delays setting new state until after animation
       const delaySet = async (towerIndex, to) => {
         await new Promise(() =>  {
-          setTimeout(() => {changeGameState(towerIndex, to)}, 550)
+          setTimeout(() => {changeGameState(towerIndex, to)}, 500)
         });
       }
       set({ 

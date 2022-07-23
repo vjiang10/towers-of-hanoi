@@ -20,11 +20,24 @@ import {
 	FaChevronUp, 
 	FaChevronDown,
 	FaRedo, 
-	FaGithub 
+	FaGithub
 } from "react-icons/fa";
 import { AiOutlineCaretRight, AiFillPicture, AiTwotoneEdit } from "react-icons/ai";
 import { TbTallymark1 } from "react-icons/tb";
-import { IoMdHelp, IoMdMore } from "react-icons/io";
+import { IoMdHelp, IoMdMore, IoMdInformationCircleOutline } from "react-icons/io";
+import Tippy, { useSingleton } from '@tippyjs/react';
+import 'tippy.js/dist/tippy.css';
+import {
+	RulesTooltip, 
+	ProcedureTooltip,
+	TowerTooltip, 
+	DiscTooltip, 
+	SourceTooltip, 
+	DestTooltip, 
+	ThemeTooltip, 
+	MaterialTooltip, 
+	AnimateTooltip 
+} from "./popUps/Tooltips"
 import GameLogic from "./GameLogic";
 
 const Sidebar = ({images, onBackgroundChange}) => {
@@ -40,6 +53,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 	const [texture, setTexture] = useState(Math.floor(textures.length * Math.random()));
 	const [animate, setAnimate] = useState(false);
 	const [playRate, setPlayRate] = useState(1);
+	const [src, target] = useSingleton();
 
 	// toggles animate on spacebar
 	window.onkeyup = (event) => {event.code === "Space" && setAnimate(!animate)};
@@ -110,20 +124,33 @@ const Sidebar = ({images, onBackgroundChange}) => {
 						</Menu>
 					</SidebarHeader>
 					<SidebarContent>
+						{/* used as the tippy singleton */}
+						<Tippy singleton={src} placement="right" delay={500} />
 						<Menu iconShape="circle">
-							<SubMenu title="Rules and Variants" icon={<IoMdMore size="1.5em" />}>
+							<SubMenu 
+								title={<Tippy content={<RulesTooltip />} singleton={target}><div>Rules and Variants</div></Tippy>}
+								icon={<IoMdMore size="1.5em" />}
+							>
 								{procedures.map((option, index) => 
-									<MenuItem 
+									<MenuItem
 										key={option}
-										icon={option === procedures[procedure] && <AiOutlineCaretRight />}
-										style={{ color: option === procedures[procedure] ? "LightSeaGreen" : "#ADADAD" }} 
+										icon={index === procedure && <AiOutlineCaretRight />}
+										style={{ color: index === procedure ? "LightSeaGreen" : "#ADADAD" }} 
 										onClick={() => {setProcedure(index)}}
 									>
-										{option}
+										<div className="ruleItem">
+											{option}
+											<Tippy content={<ProcedureTooltip procedure={index} />} singleton={target}>
+												<span><IoMdInformationCircleOutline size="1.5em" /></span>
+											</Tippy>
+										</div>
 									</MenuItem>
 								)}
 							</SubMenu>
-							<SubMenu title="Number of Towers" icon={<FaGripLinesVertical />}>
+							<SubMenu 
+								title={<Tippy content={<TowerTooltip />} singleton={target}><div>Number of Towers</div></Tippy>}
+								icon={<FaGripLinesVertical />}
+							>
 								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}> 
 									<Slider
 										{...sliderProps}
@@ -136,7 +163,10 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									/>
 								</div>
 							</SubMenu>
-							<SubMenu title="Number of Discs" icon={<FaGripLines />}>
+							<SubMenu 
+								title={<Tippy content={<DiscTooltip />} singleton={target}><div>Number of Discs</div></Tippy>}
+								icon={<FaGripLines />}
+							>
 								<div className="sliderWrapper" style={{ paddingTop: collapse && 20 }}>
 									<Slider
 										{...sliderProps}
@@ -145,14 +175,22 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									/>
 								</div>
 							</SubMenu>
-							<SubMenu title="Source Tower" icon={<FaChevronUp />}>
+							<SubMenu 
+								title={<Tippy content={<SourceTooltip />} singleton={target}><div>Source Tower</div></Tippy>} 
+								icon={<FaChevronUp />}
+							>
 								{towerItem(source, setSource)}
 							</SubMenu>
-							<SubMenu title="Destination Tower" icon={<FaChevronDown />}>
+							<SubMenu 
+								title={<Tippy content={<DestTooltip />} singleton={target}><div>Destination Tower</div></Tippy>}
+								icon={<FaChevronDown />}
+							>
 								{towerItem(destination, setDestination)}
 							</SubMenu>
-							{/* theme options (sets background image) */}
-							<SubMenu title="Themes" icon={<AiFillPicture />}>
+							<SubMenu 
+								title={<Tippy content={<ThemeTooltip />} singleton={target}><div>Theme</div></Tippy>}
+								icon={<AiFillPicture />}
+							>
 								{images.map((image, index) => 
 									<MenuItem className="themeItem" 
 										key={image} 
@@ -163,7 +201,10 @@ const Sidebar = ({images, onBackgroundChange}) => {
 									</MenuItem>
 								)}
 							</SubMenu>
-							<SubMenu title="Material" icon={<AiTwotoneEdit />}>
+							<SubMenu 
+								title={<Tippy content={<MaterialTooltip />} singleton={target}><div>Material</div></Tippy>}
+								icon={<AiTwotoneEdit />}
+							>
 								{textures.map((image, index) => 
 									<MenuItem className="materialItem"
 										key={image}
@@ -175,7 +216,7 @@ const Sidebar = ({images, onBackgroundChange}) => {
 							{animate ? 
 								// if animate, attach additional menuItem containing rate slider
 								<SubMenu 
-									title="Animate" 
+									title={<Tippy content={<AnimateTooltip />} singleton={target}><div>Animate</div></Tippy>}
 									icon={<FaPause onClick={() => {setAnimate(false)}} />}
 									// only responds to clicking parent component (seen as icon) upon collapsed sidebar
 									onClick={(event) => {
@@ -201,8 +242,8 @@ const Sidebar = ({images, onBackgroundChange}) => {
 								</SubMenu>
 								:
 								// if !animate, render icon only
-								<MenuItem icon={<FaPlay onClick={() => {setAnimate(true)}} />}>
-									Animate
+								<MenuItem icon={<FaPlay />} onClick={() => {setAnimate(true)}}>
+									<Tippy content={<AnimateTooltip />} singleton={target}><div>Animate</div></Tippy>
 								</MenuItem>
 							}
 							<MenuItem

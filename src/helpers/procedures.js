@@ -1,4 +1,6 @@
-// include algorithm for animating solution according to standard rules
+// Contains helper functions for checking valid moves, winning conditions, and animation logic
+
+// TODO: include algorithm for animating solution according to procedure
 
 // checks whether a move is valid
 export const isValidMove = (gameState, procedure, from, to) => {
@@ -45,8 +47,10 @@ const bicolorWinCondition = (numDiscs, sourceTower, destTower) => {
 	const patternCheck = () => {
 		let isWin = true;
 		sourceTower && sourceTower.forEach((radius, index) => {
-			const compare = (0.7-0.38*index/(numDiscs-1) - (index%2 ? 0 : 0.01));
-			isWin = isWin && Math.abs(radius - compare) < 0.001;
+			const compare = (0.7-0.38*index/(numDiscs-1) - (index%2 ? 0 : 0.001));
+			isWin = isWin && Math.abs(radius - compare) < 0.0001;
+			console.log("compare: " + compare);
+			console.log("radius" + radius);
 		});
 		return isWin;
 	}

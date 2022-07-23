@@ -23,21 +23,6 @@
 	justify-content: center;
 }
 
-.materialItem {
-	height: 40px;
-	background-size: 110%;
-	background-position: center;
-}
-
-.sidebar {
-	height: 100vh;
-}
-
-.sliderWrapper {
-	padding-right: 20px;
-	display: flex;
-}
-
 .icon {
 	animation: MoveUpDown 1s linear infinite;
 	position: absolute;
@@ -47,6 +32,27 @@
 	0% { }
 	50% { transform: translateY(-20px); }
 	100% { }
+}
+
+.materialItem {
+	height: 40px;
+	background-size: 115%;
+	background-position: center;
+}
+
+.ruleItem {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.sidebar {
+	height: 100vh;
+}
+
+.sliderWrapper {
+	padding-right: 20px;
+	display: flex;
 }
 
 .themeItem {
